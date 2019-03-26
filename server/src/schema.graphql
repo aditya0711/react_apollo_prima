@@ -3,9 +3,19 @@ scalar DateTime
 type Query {
   info: String!
   feed(filter: String, skip: Int, first: Int, orderBy: LinkOrderByInput): Feed!
+  allBooks(filter: String, skip: Int, first: Int, orderBy: BookOrderByInput): Books!
 }
 
 enum LinkOrderByInput {
+  description_ASC
+  description_DESC
+  url_ASC
+  url_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+enum BookOrderByInput {
   description_ASC
   description_DESC
   url_ASC
@@ -19,11 +29,16 @@ type Feed {
   count: Int!
 }
 
+type Books {
+  books: [Book!]!
+  count: Int!
+}
 type Mutation {
   post(url: String!, description: String!): Link!
   signup(email: String!, password: String!, name: String!): AuthPayload
   login(email: String!, password: String!): AuthPayload
   vote(linkId: ID!): Vote!
+  addBook(name: String!): Book!
 }
 
 type Subscription {
@@ -56,4 +71,9 @@ type Vote {
   id: ID!
   link: Link!
   user: User!
+}
+
+type Book {
+  id: ID!
+  name: String!
 }

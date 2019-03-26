@@ -21,3 +21,8 @@ type Vote {
   link: Link!
   user: User!
 }
+
+type Book {
+  id: ID! @unique
+  name: String!
+}
