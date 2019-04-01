@@ -1,0 +1,55 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    expose:
+      - 5432
+    volumes:
+      - "./database/postgres-data:/var/lib/postgresql/data"
+      - "./database/init:/docker-entrypoint-initdb.d"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: db1
+    ports:
+      - "5432:5432"
+  prisma:
+    image: prismagraphql/prisma:1.29
+    restart: always
+    ports:
+      - "4466:4466"
+    environment:
+      PRISMA_CONFIG: |
+        port: 4466
+        # uncomment the next line and provide the env var PRISMA_MANAGEMENT_API_SECRET=my-secret to activate cluster security
+        # managementApiSecret: my-secret
+        databases:
+          default:
+            connector: postgres
+            host: host.docker.internal
+            database: db1
+            user: user
+            password: password
+            rawAccess: true
+            port: '5432'
+            migrations: true
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    links:
+      - db
+    depends_on:
+      - prisma
+  web:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    links:
+      - server
